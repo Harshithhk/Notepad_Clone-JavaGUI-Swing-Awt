@@ -10,6 +10,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.undo.UndoManager;
 
 public class App implements ActionListener {
 
@@ -27,8 +30,16 @@ public class App implements ActionListener {
     JMenuItem miWrap, miFontArial, miFontCSMS, miFontTNR, miFontSize12, miFontSize16, miFontSize20, miFontSize24;
     JMenu menuFont, menuFontSize;
 
+    JMenuItem miColor1, miColor2, miColor3;
+
+    JMenuItem miUndo, miRedo;
+
     Function_File file = new Function_File(this);
     Function_Format format = new Function_Format(this);
+    Function_Color color = new Function_Color(this);
+    Function_Edit edit = new Function_Edit(this);
+
+    UndoManager um = new UndoManager();
 
     public static void main(String[] args) {
         new App();
@@ -39,12 +50,14 @@ public class App implements ActionListener {
         createTextArea();
         createMenuBar();
         createFileMenu();
+        createEditMenu();
         createFormatMenu();
+        createColorMenu();
 
         format.selectedFont = "Arial";
         format.createFont(16);
         format.wordWrap();
-
+        color.changeColor("White");
         window.setVisible(true);
     }
 
@@ -59,6 +72,13 @@ public class App implements ActionListener {
     public void createTextArea() {
 
         textArea = new JTextArea();
+
+        textArea.getDocument().addUndoableEditListener(new UndoableEditListener() {
+            public void undoableEditHappened(UndoableEditEvent e) {
+                um.addEdit(e.getEdit());
+            }
+        });
+
         scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -79,11 +99,8 @@ public class App implements ActionListener {
         menuFormat = new JMenu("Format");
         menuBar.add(menuFormat);
 
-        menuColor = new JMenu("Color");
+        menuColor = new JMenu("Theme");
         menuBar.add(menuColor);
-
-        menuTheme = new JMenu("Theme");
-        menuBar.add(menuTheme);
     }
 
     public void createFileMenu() {
@@ -164,6 +181,37 @@ public class App implements ActionListener {
 
     }
 
+    public void createColorMenu() {
+
+        miColor1 = new JMenuItem("White");
+        miColor1.addActionListener(this);
+        miColor1.setActionCommand("White");
+        menuColor.add(miColor1);
+
+        miColor2 = new JMenuItem("Black");
+        miColor2.addActionListener(this);
+        miColor2.setActionCommand("Black");
+        menuColor.add(miColor2);
+
+        miColor3 = new JMenuItem("Skyish Blue");
+        miColor3.addActionListener(this);
+        miColor3.setActionCommand("Blue");
+        menuColor.add(miColor3);
+    }
+
+    public void createEditMenu() {
+
+        miUndo = new JMenuItem("Undo");
+        miUndo.addActionListener(this);
+        miUndo.setActionCommand("Undo");
+        menuEdit.add(miUndo);
+
+        miRedo = new JMenuItem("Redo");
+        miRedo.addActionListener(this);
+        miRedo.setActionCommand("Redo");
+        menuEdit.add(miRedo);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -179,6 +227,10 @@ public class App implements ActionListener {
             file.saveAs();
         } else if (command == "Exit") {
             file.exit();
+        } else if (command == "Undo") {
+            edit.undo();
+        } else if (command == "Redo") {
+            edit.redo();
         } else if (command == "Word Wrap") {
             format.wordWrap();
         } else if (command == "Arial") {
@@ -195,6 +247,12 @@ public class App implements ActionListener {
             format.createFont(20);
         } else if (command == "font24") {
             format.createFont(24);
+        } else if (command == "White") {
+            color.changeColor(command);
+        } else if (command == "Black") {
+            color.changeColor(command);
+        } else if (command == "Blue") {
+            color.changeColor(command);
         }
     }
 }
