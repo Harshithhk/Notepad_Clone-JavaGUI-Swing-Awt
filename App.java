@@ -39,6 +39,8 @@ public class App implements ActionListener {
     Function_Color color = new Function_Color(this);
     Function_Edit edit = new Function_Edit(this);
 
+    KeyHandler keyHandler = new KeyHandler(this);
+
     UndoManager um = new UndoManager();
 
     public static void main(String[] args) {
@@ -72,6 +74,7 @@ public class App implements ActionListener {
     public void createTextArea() {
 
         textArea = new JTextArea();
+        textArea.addKeyListener(keyHandler);
 
         textArea.getDocument().addUndoableEditListener(new UndoableEditListener() {
             public void undoableEditHappened(UndoableEditEvent e) {
